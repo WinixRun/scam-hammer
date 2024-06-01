@@ -26,6 +26,14 @@ const reportSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+    whoisData: {
+      type: Object,
+      default: null,
+    },
+    lastWhoisCheck: {
+      type: Date,
+      default: null,
+    },
   },
   {
     timestamps: true,
