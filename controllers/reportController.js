@@ -5,6 +5,7 @@ const createReport = async (req, res) => {
   try {
     const { telefono, enlace, texto } = req.body;
 
+    // Validar y sanitizar
     if (!validator.isMobilePhone(telefono, 'any')) {
       return res.status(400).json({ message: 'Número de teléfono inválido' });
     }
@@ -13,8 +14,11 @@ const createReport = async (req, res) => {
     }
     const sanitizedTexto = validator.escape(texto);
 
-    const ipAddress = req.ip || req.connection.remoteAddress;
+    // Capturar la IP del cliente
+    const ipAddress =
+      req.headers['x-forwarded-for'] || req.connection.remoteAddress;
 
+    // Comprobar si ya existe un reporte idéntico
     const existingReport = await Report.findOne({
       telefono,
       enlace,
@@ -30,12 +34,13 @@ const createReport = async (req, res) => {
       });
     }
 
+    // Crear un nuevo reporte si no existe uno idéntico
     const newReport = new Report({
       telefono,
       enlace,
       texto: sanitizedTexto,
       cantidad: 1,
-      ipAddress,
+      ipAddress, // Añadir la IP aquí
     });
     await newReport.save();
     res
@@ -57,7 +62,7 @@ const searchReports = async (req, res) => {
         { enlace: { $regex: sanitizedQuery, $options: 'i' } },
         { texto: { $regex: sanitizedQuery, $options: 'i' } },
       ],
-    }).select('-ipAddress');
+    }).select('-ipAddress'); // Excluir el campo ipAddress
 
     res.status(200).json(results);
   } catch (error) {
