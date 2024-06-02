@@ -1,4 +1,3 @@
-require('dotenv').config();
 const axios = require('axios');
 const validator = require('validator');
 const Report = require('../models/reportModel');
