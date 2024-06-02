@@ -20,7 +20,7 @@ const reportSchema = new mongoose.Schema(
     },
     domainStatus: {
       type: String,
-      default: 'unknown', // Valores posibles: 'up', 'down', 'unknown'
+      default: 'unknown',
     },
     lastChecked: {
       type: Date,
@@ -33,6 +33,10 @@ const reportSchema = new mongoose.Schema(
     lastWhoisCheck: {
       type: Date,
       default: null,
+    },
+    ipAddress: {
+      type: String,
+      required: true,
     },
   },
   {
