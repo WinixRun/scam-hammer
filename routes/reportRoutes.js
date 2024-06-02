@@ -7,7 +7,6 @@ const csrf = require('csrf');
 const checkDomain = require('../utils/checkDomain');
 const Report = require('../models/reportModel');
 const tokens = new csrf();
-const axios = require('axios');
 
 const router = express.Router();
 
