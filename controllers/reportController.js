@@ -1,9 +1,27 @@
+const axios = require('axios');
 const validator = require('validator');
 const Report = require('../models/reportModel');
 
 const createReport = async (req, res) => {
   try {
-    const { telefono, enlace, texto } = req.body;
+    const {
+      telefono,
+      enlace,
+      texto,
+      'g-recaptcha-response': recaptchaToken,
+    } = req.body;
+    const secretKey = process.env.RECAPTCHA_SECRET_KEY;
+
+    // Verificar reCAPTCHA
+    const verificationUrl = `https://www.google.com/recaptcha/api/siteverify?secret=${secretKey}&response=${recaptchaToken}`;
+    const recaptchaResponse = await axios.post(verificationUrl);
+    const recaptchaData = recaptchaResponse.data;
+
+    if (!recaptchaData.success) {
+      return res
+        .status(400)
+        .json({ message: 'La verificación de reCAPTCHA falló' });
+    }
 
     // Validar y sanitizar
     if (!validator.isMobilePhone(telefono, 'any')) {
