@@ -1,4 +1,5 @@
 const validator = require('validator');
+const moment = require('moment');
 const Report = require('../models/reportModel');
 
 const createReport = async (req, res) => {
@@ -17,6 +18,20 @@ const createReport = async (req, res) => {
     // Capturar la IP del cliente
     const ipAddress =
       req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    // Verificar si el usuario ha hecho un reporte en los últimos 5 minutos
+    const recentReport = await Report.findOne({
+      ipAddress,
+      createdAt: { $gte: moment().subtract(5, 'minutes').toDate() },
+    });
+
+    if (recentReport) {
+      return res
+        .status(429)
+        .json({
+          message: 'Debe esperar 5 minutos antes de enviar otro reporte.',
+        });
+    }
 
     // Comprobar si ya existe un reporte idéntico
     const existingReport = await Report.findOne({
@@ -40,7 +55,7 @@ const createReport = async (req, res) => {
       enlace,
       texto: sanitizedTexto,
       cantidad: 1,
-      ipAddress, // Añadir la IP aquí
+      ipAddress,
     });
     await newReport.save();
     res
