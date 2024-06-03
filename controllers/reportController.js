@@ -1,9 +1,6 @@
 const validator = require('validator');
 const Report = require('../models/reportModel');
 
-// Estructura en memoria para almacenar las marcas de tiempo de las solicitudes por IP
-const requestTimestamps = {};
-
 const createReport = async (req, res) => {
   try {
     const { telefono, enlace, texto } = req.body;
@@ -20,24 +17,6 @@ const createReport = async (req, res) => {
     // Capturar la IP del cliente
     const ipAddress =
       req.headers['x-forwarded-for'] || req.connection.remoteAddress;
-
-    // Comprobar si la IP ha enviado un reporte en los últimos 5 minutos
-    const currentTime = Date.now();
-    const timeLimit = 5 * 60 * 1000; // 5 minutos en milisegundos
-
-    if (
-      requestTimestamps[ipAddress] &&
-      currentTime - requestTimestamps[ipAddress] < timeLimit
-    ) {
-      return res
-        .status(429)
-        .json({
-          message: 'Por favor espera 5 minutos antes de enviar otro reporte.',
-        });
-    }
-
-    // Actualizar la marca de tiempo para la IP
-    requestTimestamps[ipAddress] = currentTime;
 
     // Comprobar si ya existe un reporte idéntico
     const existingReport = await Report.findOne({
