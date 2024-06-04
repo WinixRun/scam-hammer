@@ -5,6 +5,7 @@ const cors = require('cors');
 const mongoose = require('mongoose');
 const csrf = require('csrf');
 const cookieParser = require('cookie-parser');
+const helmet = require('helmet'); // Importar helmet
 const reportRoutes = require('./routes/reportRoutes');
 
 const app = express();
@@ -22,6 +23,7 @@ app.use(
 
 app.use(bodyParser.json());
 app.use(cookieParser());
+app.use(helmet()); // Usar helmet para mejorar la seguridad
 
 // Middleware para generar y validar tokens CSRF
 app.use((req, res, next) => {
