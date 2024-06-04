@@ -26,7 +26,6 @@ const createReport = async (req, res) => {
     });
 
     if (recentReport) {
-      console.log(`Reporte reciente encontrado: ${recentReport.createdAt}`);
       return res
         .status(429)
         .json({
@@ -43,7 +42,6 @@ const createReport = async (req, res) => {
 
     if (existingReport) {
       existingReport.cantidad += 1;
-      existingReport.lastReportedAt = Date.now();
       await existingReport.save();
       return res.status(200).json({
         message: 'Reporte existente actualizado',
