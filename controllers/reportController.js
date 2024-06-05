@@ -7,13 +7,11 @@ const createReport = async (req, res) => {
     const { telefono, enlace, texto } = req.body;
 
     // Validar y sanitizar
-    if (!/^\d{6,20}$/.test(telefono)) {
-      return res
-        .status(400)
-        .json({
-          message:
-            'Número de teléfono inválido. Debe contener entre 6 y 20 cifras.',
-        });
+    if (!/^\+?\d{6,20}$/.test(telefono)) {
+      return res.status(400).json({
+        message:
+          'Número de teléfono inválido. Debe contener entre 6 y 20 cifras y puede incluir el símbolo +.',
+      });
     }
     if (!validator.isURL(enlace)) {
       return res.status(400).json({ message: 'Enlace inválido' });
