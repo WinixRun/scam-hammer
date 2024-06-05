@@ -1,6 +1,7 @@
 const validator = require('validator');
 const moment = require('moment');
 const Report = require('../models/reportModel');
+const IpLog = require('../models/ipLogModel');
 
 const createReport = async (req, res) => {
   try {
@@ -21,6 +22,23 @@ const createReport = async (req, res) => {
     // Capturar la IP del cliente
     const ipAddress =
       req.headers['x-forwarded-for'] || req.connection.remoteAddress;
+
+    // Registrar la IP y el timestamp
+    const ipLog = new IpLog({ ipAddress });
+    await ipLog.save();
+
+    // Verificar la cantidad de reportes en los últimos 5 minutos
+    const reportCount = await IpLog.countDocuments({
+      ipAddress,
+      timestamp: { $gte: moment().subtract(5, 'minutes').toDate() },
+    });
+
+    if (reportCount >= 3) {
+      return res.status(429).json({
+        message:
+          '¡Muchas gracias por colaborar tanto! Pero me temo que tienes demasiada información para nosotros. Espera 20 minutos antes de volver a reportar más casos.',
+      });
+    }
 
     // Verificar si el usuario ha hecho un reporte en los últimos 5 minutos
     const recentReport = await Report.findOne({
