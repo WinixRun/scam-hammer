@@ -7,8 +7,13 @@ const createReport = async (req, res) => {
     const { telefono, enlace, texto } = req.body;
 
     // Validar y sanitizar
-    if (!validator.isMobilePhone(telefono, 'any')) {
-      return res.status(400).json({ message: 'Número de teléfono inválido' });
+    if (!/^\d{6,20}$/.test(telefono)) {
+      return res
+        .status(400)
+        .json({
+          message:
+            'Número de teléfono inválido. Debe contener entre 6 y 20 cifras.',
+        });
     }
     if (!validator.isURL(enlace)) {
       return res.status(400).json({ message: 'Enlace inválido' });
@@ -26,11 +31,9 @@ const createReport = async (req, res) => {
     });
 
     if (recentReport) {
-      return res
-        .status(429)
-        .json({
-          message: 'Debe esperar 5 minutos antes de enviar otro reporte.',
-        });
+      return res.status(429).json({
+        message: 'Debe esperar 5 minutos antes de enviar otro reporte.',
+      });
     }
 
     // Comprobar si ya existe un reporte idéntico
