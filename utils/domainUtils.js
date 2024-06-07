@@ -19,29 +19,25 @@ const identifyPattern = (domain) => {
 };
 
 const updateRelatedDomains = async () => {
-  const reports = await Report.find({});
-  const domainMap = {};
+  try {
+    const reports = await Report.find({});
+    for (const report of reports) {
+      const domain = extractDomain(report.enlace);
+      const pattern = identifyPattern(domain);
+      const relatedReports = await Report.find({
+        enlace: { $regex: pattern, $options: 'i' },
+      });
 
-  reports.forEach((report) => {
-    const domain = extractDomain(report.enlace);
-    const pattern = identifyPattern(domain);
-    if (!domainMap[pattern]) {
-      domainMap[pattern] = [];
+      const relatedDomains = relatedReports.map((r) => extractDomain(r.enlace));
+      report.dominiosRelacionados = [...new Set(relatedDomains)];
+      await report.save();
     }
-    domainMap[pattern].push(domain);
-  });
-
-  for (const report of reports) {
-    const domain = extractDomain(report.enlace);
-    const pattern = identifyPattern(domain);
-    const relatedDomains = domainMap[pattern].filter((d) => d !== domain);
-    report.dominiosRelacionados = [...new Set(relatedDomains)];
-    await report.save();
+    console.log('Related domains updated successfully.');
+  } catch (error) {
+    console.error('Error updating related domains:', error.message);
   }
 };
 
 module.exports = {
-  extractDomain,
-  identifyPattern,
   updateRelatedDomains,
 };

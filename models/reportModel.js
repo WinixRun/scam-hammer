@@ -1,9 +1,4 @@
 const mongoose = require('mongoose');
-const {
-  extractDomain,
-  identifyPattern,
-  updateRelatedDomains,
-} = require('../utils/domainUtils');
 
 const reportSchema = new mongoose.Schema(
   {
@@ -43,13 +38,10 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    dominiosRelacionados: [String],
   },
   {
     timestamps: true,
   }
 );
-
-reportSchema.statics.updateRelatedDomains = updateRelatedDomains;
 
 module.exports = mongoose.model('Report', reportSchema);

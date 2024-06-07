@@ -6,7 +6,6 @@ const mongoose = require('mongoose');
 const csrf = require('csrf');
 const cookieParser = require('cookie-parser');
 const reportRoutes = require('./routes/reportRoutes');
-const Report = require('./models/reportModel'); // Importar el modelo de Report
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -60,15 +59,3 @@ app.use('/api', reportRoutes);
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
 });
-
-// Ejecutar la actualización de dominios relacionados cada 6 horas
-setInterval(async () => {
-  await Report.updateRelatedDomains();
-  console.log('Dominios relacionados actualizados');
-}, 6 * 60 * 60 * 1000); // Cada 6 horas
-
-// Actualizar dominios relacionados al iniciar la aplicación
-(async () => {
-  await Report.updateRelatedDomains();
-  console.log('Dominios relacionados actualizados al iniciar la aplicación');
-})();

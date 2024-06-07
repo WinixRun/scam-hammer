@@ -2,7 +2,6 @@ const validator = require('validator');
 const moment = require('moment');
 const Report = require('../models/reportModel');
 const IpLog = require('../models/ipLogModel');
-const { extractDomain, identifyPattern } = require('../utils/domainUtils');
 
 const createReport = async (req, res) => {
   try {
@@ -19,8 +18,6 @@ const createReport = async (req, res) => {
       return res.status(400).json({ message: 'Enlace inválido' });
     }
     const sanitizedTexto = validator.escape(texto);
-    const domain = extractDomain(enlace);
-    const pattern = identifyPattern(domain);
 
     // Capturar la IP del cliente
     const ipAddress =
@@ -78,9 +75,7 @@ const createReport = async (req, res) => {
       texto: sanitizedTexto,
       cantidad: 1,
       ipAddress,
-      dominiosRelacionados: [], // Inicialmente vacío
     });
-
     await newReport.save();
     res
       .status(201)
