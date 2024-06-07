@@ -3,6 +3,24 @@ const moment = require('moment');
 const Report = require('../models/reportModel');
 const IpLog = require('../models/ipLogModel');
 
+const extractDomain = (url) => {
+  try {
+    const { hostname } = new URL(url);
+    return hostname;
+  } catch (error) {
+    console.error('Error extracting domain:', error.message);
+    return null;
+  }
+};
+
+const identifyPattern = (domain) => {
+  const parts = domain.split('.');
+  if (parts.length > 2) {
+    return parts.slice(-2).join('.');
+  }
+  return domain;
+};
+
 const createReport = async (req, res) => {
   try {
     const { telefono, enlace, texto } = req.body;
@@ -18,6 +36,8 @@ const createReport = async (req, res) => {
       return res.status(400).json({ message: 'Enlace inválido' });
     }
     const sanitizedTexto = validator.escape(texto);
+    const domain = extractDomain(enlace);
+    const pattern = identifyPattern(domain);
 
     // Capturar la IP del cliente
     const ipAddress =
@@ -68,6 +88,13 @@ const createReport = async (req, res) => {
       });
     }
 
+    // Buscar dominios relacionados
+    const relatedReports = await Report.find({
+      enlace: { $regex: pattern, $options: 'i' },
+    });
+
+    const relatedDomains = relatedReports.map((r) => extractDomain(r.enlace));
+
     // Crear un nuevo reporte si no existe uno idéntico
     const newReport = new Report({
       telefono,
@@ -75,7 +102,9 @@ const createReport = async (req, res) => {
       texto: sanitizedTexto,
       cantidad: 1,
       ipAddress,
+      dominiosRelacionados: [...new Set(relatedDomains)],
     });
+
     await newReport.save();
     res
       .status(201)

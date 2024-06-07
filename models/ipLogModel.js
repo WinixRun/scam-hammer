@@ -1,10 +1,20 @@
 const mongoose = require('mongoose');
 
-const ipLogSchema = new mongoose.Schema({
-  ipAddress: String,
-  timestamp: { type: Date, default: Date.now },
-});
+const ipLogSchema = new mongoose.Schema(
+  {
+    ipAddress: {
+      type: String,
+      required: true,
+    },
+    timestamp: {
+      type: Date,
+      default: Date.now,
+      expires: '20m',
+    },
+  },
+  {
+    timestamps: true,
+  }
+);
 
-const IpLog = mongoose.model('IpLog', ipLogSchema);
-
-module.exports = IpLog;
+module.exports = mongoose.model('IpLog', ipLogSchema);
