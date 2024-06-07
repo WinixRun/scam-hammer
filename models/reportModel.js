@@ -1,4 +1,9 @@
 const mongoose = require('mongoose');
+const {
+  extractDomain,
+  identifyPattern,
+  updateRelatedDomains,
+} = require('../utils/domainUtils');
 
 const reportSchema = new mongoose.Schema(
   {
@@ -38,32 +43,13 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
-    relatedDomains: {
-      type: [String],
-      default: ['De momento no hay dominios relacionados'],
-    },
+    dominiosRelacionados: [String],
   },
   {
     timestamps: true,
   }
 );
 
-reportSchema.statics.findRelatedDomains = async function (domain) {
-  const regex = new RegExp(domain.replace('.', '\\.'), 'i');
-  const relatedReports = await this.find({ enlace: { $regex: regex } });
-  return relatedReports.map((report) => report.enlace);
-};
-
-reportSchema.statics.updateRelatedDomains = async function () {
-  const reports = await this.find({});
-  for (const report of reports) {
-    const relatedDomains = await this.findRelatedDomains(report.enlace);
-    report.relatedDomains = relatedDomains.filter((d) => d !== report.enlace);
-    if (report.relatedDomains.length === 0) {
-      report.relatedDomains.push('De momento no hay dominios relacionados');
-    }
-    await report.save();
-  }
-};
+reportSchema.statics.updateRelatedDomains = updateRelatedDomains;
 
 module.exports = mongoose.model('Report', reportSchema);
