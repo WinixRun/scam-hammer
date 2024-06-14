@@ -75,6 +75,7 @@ const createReport = async (req, res) => {
       texto: sanitizedTexto,
       cantidad: 1,
       ipAddress,
+      dominiosRelacionados: [], // Asegúrate de inicializar como un array vacío
     });
     await newReport.save();
     res
