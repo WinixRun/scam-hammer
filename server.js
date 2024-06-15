@@ -16,7 +16,7 @@ const tokens = new csrf();
 
 app.use(
   cors({
-    origin: 'http://localhost:4321',
+    origin: 'http://localhost:4321', // Asegúrate de que el origen está configurado correctamente
     credentials: true,
   })
 );
@@ -53,8 +53,12 @@ app.get('/api/csrf-token', (req, res) => {
   res.json({ csrfToken: newToken });
 });
 
+// Conexión a MongoDB
 mongoose
-  .connect(process.env.MONGO_URI)
+  .connect(process.env.MONGO_URI, {
+    useNewUrlParser: true,
+    useUnifiedTopology: true,
+  })
   .then(() => {
     console.log('Connected to MongoDB');
   })
@@ -62,8 +66,8 @@ mongoose
     console.error('Failed to connect to MongoDB', err);
   });
 
-app.use('/api/reports', reportRoutes);
-app.use('/api/stats', statsRoutes);
+app.use('/api', reportRoutes);
+app.use('/api', statsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

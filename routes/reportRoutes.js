@@ -10,8 +10,8 @@ const tokens = new csrf();
 
 const router = express.Router();
 
-router.post('/', createReport);
-router.get('/search', searchReports);
+router.post('/reports', createReport);
+router.get('/reports/search', searchReports);
 
 router.get('/check-domain', async (req, res) => {
   const { domain } = req.query;
