@@ -38,6 +38,7 @@ const reportSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    entidadSuplantada: String,
   },
   {
     timestamps: true,
