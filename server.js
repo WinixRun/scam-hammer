@@ -46,6 +46,13 @@ app.use((req, res, next) => {
   next();
 });
 
+// Ruta para obtener el token CSRF
+app.get('/api/csrf-token', (req, res) => {
+  const newToken = tokens.create(process.env.CSRF_SECRET);
+  res.cookie('XSRF-TOKEN', newToken, { httpOnly: false, secure: false });
+  res.json({ csrfToken: newToken });
+});
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
