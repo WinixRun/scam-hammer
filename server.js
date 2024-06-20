@@ -3,7 +3,6 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const mongoose = require('mongoose');
-const csrf = require('csrf');
 const cookieParser = require('cookie-parser');
 const reportRoutes = require('./routes/reportRoutes');
 const statsRoutes = require('./routes/statsRoutes');
@@ -11,12 +10,9 @@ const statsRoutes = require('./routes/statsRoutes');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Crear un nuevo objeto csrf
-const tokens = new csrf();
-
 app.use(
   cors({
-    origin: 'http://localhost:4321', // Asegúrate de que el origen está configurado correctamente
+    origin: 'http://localhost:4321',
     credentials: true,
   })
 );
@@ -24,36 +20,6 @@ app.use(
 app.use(bodyParser.json());
 app.use(cookieParser());
 
-// Middleware para generar y validar tokens CSRF
-app.use((req, res, next) => {
-  const token = req.cookies['XSRF-TOKEN'];
-  if (
-    req.method === 'GET' ||
-    req.method === 'HEAD' ||
-    req.method === 'OPTIONS'
-  ) {
-    if (!token) {
-      const newToken = tokens.create(process.env.CSRF_SECRET);
-      res.cookie('XSRF-TOKEN', newToken, { httpOnly: false, secure: false });
-    }
-    return next();
-  }
-
-  if (!tokens.verify(process.env.CSRF_SECRET, token)) {
-    return res.status(403).json({ message: 'Token CSRF inválido' });
-  }
-
-  next();
-});
-
-// Ruta para obtener el token CSRF
-app.get('/api/csrf-token', (req, res) => {
-  const newToken = tokens.create(process.env.CSRF_SECRET);
-  res.cookie('XSRF-TOKEN', newToken, { httpOnly: false, secure: false });
-  res.json({ csrfToken: newToken });
-});
-
-// Conexión a MongoDB
 mongoose
   .connect(process.env.MONGO_URI, {
     useNewUrlParser: true,
@@ -67,7 +33,7 @@ mongoose
   });
 
 app.use('/api', reportRoutes);
-app.use('/api', statsRoutes);
+app.use('/api/stats', statsRoutes);
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);

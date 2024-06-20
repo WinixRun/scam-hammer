@@ -22,7 +22,12 @@ const getReportsByDateRange = async (req, res) => {
 const getReportsGroupedByEntity = async (req, res) => {
   try {
     const reports = await Report.aggregate([
-      { $group: { _id: '$entity', count: { $sum: 1 } } },
+      {
+        $group: {
+          _id: '$entidadSuplantada',
+          count: { $sum: 1 },
+        },
+      },
     ]);
 
     res.status(200).json(reports);

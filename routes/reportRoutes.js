@@ -3,10 +3,8 @@ const {
   createReport,
   searchReports,
 } = require('../controllers/reportController');
-const csrf = require('csrf');
 const checkDomain = require('../utils/checkDomain');
 const Report = require('../models/reportModel');
-const tokens = new csrf();
 
 const router = express.Router();
 
@@ -67,19 +65,6 @@ router.get('/check-domain', async (req, res) => {
     console.log(`Error in /check-domain route: ${error.message}`);
     res.status(400).json({ message: error.message });
   }
-});
-
-router.get('/csrf-token', (req, res) => {
-  const token = req.cookies['XSRF-TOKEN'];
-  if (!token) {
-    const newToken = tokens.create(process.env.CSRF_SECRET);
-    res.cookie('XSRF-TOKEN', newToken, {
-      httpOnly: false,
-      secure: process.env.NODE_ENV === 'production',
-    });
-    return res.json({ csrfToken: newToken });
-  }
-  return res.json({ csrfToken: token });
 });
 
 module.exports = router;
