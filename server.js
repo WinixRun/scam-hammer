@@ -12,7 +12,8 @@ const PORT = process.env.PORT || 3000;
 
 app.use(
   cors({
-    origin: 'https://scam-hammer.com/',
+    origin: 'https://scam-hammer.com',
+    credentials: true,
   })
 );
 
